@@ -1,5 +1,8 @@
-/* ========== app/globals.css (Tailwind CSS 4.0) ========== */
+/* ========== app/globals.css (Tailwind CSS 4.0 + Dark Mode) ========== */
 @import "tailwindcss";
+
+/* 🌓 Dark Mode 配置 - 使用 class 方式 */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ==================== 主題配置 ==================== */
 @theme {
@@ -39,10 +42,6 @@
   --duration-fast: 150ms;
   --duration-normal: 300ms;
   --duration-slow: 500ms;
-
-  /* 自定義斷點（如果需要） */
-  --breakpoint-xs: 475px;
-  --breakpoint-3xl: 1920px;
 }
 
 /* ==================== CSS 變數（動態主題） ==================== */
@@ -65,36 +64,71 @@
     @apply border-gray-200;
   }
 
+  .dark * {
+    @apply border-gray-700;
+  }
+
   html {
     @apply scroll-smooth;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
-    @apply antialiased;
+    @apply antialiased transition-colors duration-300;
     @apply bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50;
     @apply text-gray-900;
+  }
+
+  .dark body {
+    @apply bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950;
+    @apply text-gray-100;
   }
 
   /* 標題樣式 */
   h1 {
     @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+    @apply text-gray-900;
+  }
+
+  .dark h1 {
+    @apply text-white;
   }
 
   h2 {
     @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+    @apply text-gray-900;
+  }
+
+  .dark h2 {
+    @apply text-white;
   }
 
   h3 {
     @apply text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight;
+    @apply text-gray-900;
+  }
+
+  .dark h3 {
+    @apply text-white;
   }
 
   h4 {
     @apply text-xl md:text-2xl font-bold;
+    @apply text-gray-900;
+  }
+
+  .dark h4 {
+    @apply text-white;
   }
 
   /* 無障礙 focus 樣式 */
   *:focus-visible {
-    @apply outline-2 outline-offset-2 outline-amber-500;
+    @apply outline-2 outline-offset-2;
+    outline-color: var(--color-primary);
   }
 
   *:focus:not(:focus-visible) {
@@ -123,10 +157,13 @@
   }
 
   .btn-secondary {
-    @apply bg-white text-gray-700;
     @apply border-2;
+    @apply bg-white text-gray-700;
     border-color: var(--color-primary);
-    color: var(--color-primary);
+  }
+
+  .dark .btn-secondary {
+    @apply bg-gray-800 text-gray-300;
   }
 
   .btn-secondary:hover {
@@ -138,10 +175,22 @@
     @apply hover:bg-gray-100;
   }
 
+  .dark .btn-ghost {
+    @apply text-gray-300;
+    @apply hover:bg-gray-800;
+  }
+
   /* 卡片樣式 */
   .card {
-    @apply bg-white rounded-2xl shadow-lg border border-gray-100;
+    @apply bg-white;
+    @apply rounded-2xl shadow-lg;
+    @apply border border-gray-100;
     @apply transition-all duration-300;
+  }
+
+  .dark .card {
+    @apply bg-gray-800;
+    @apply border-gray-700;
   }
 
   .card:hover {
@@ -150,16 +199,41 @@
 
   /* 玻璃態效果 */
   .glass {
-    @apply bg-white/80 backdrop-blur-lg;
-    @apply border border-white/20 shadow-xl;
+    @apply backdrop-blur-lg shadow-xl;
+    @apply bg-white/80;
+    @apply border border-white/20;
+  }
+
+  .dark .glass {
+    @apply bg-gray-900/80;
+    @apply border-gray-700/20;
   }
 
   /* 輸入框樣式 */
   .input {
     @apply w-full px-4 py-3 rounded-lg;
     @apply border border-gray-300;
-    @apply focus:border-amber-500 focus:ring-2 focus:ring-amber-200;
+    @apply bg-white;
+    @apply text-gray-900;
+    @apply placeholder:text-gray-400;
     @apply transition-all duration-200;
+  }
+
+  .dark .input {
+    @apply border-gray-600;
+    @apply bg-gray-800;
+    @apply text-gray-100;
+    @apply placeholder:text-gray-500;
+  }
+
+  .input:focus {
+    @apply ring-2 ring-offset-2;
+    border-color: var(--color-primary);
+    ring-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  }
+
+  .dark .input:focus {
+    @apply ring-offset-gray-900;
   }
 
   /* 徽章樣式 */
@@ -177,12 +251,24 @@
     @apply bg-green-100 text-green-800;
   }
 
+  .dark .badge-success {
+    @apply bg-green-900/30 text-green-400;
+  }
+
   .badge-warning {
     @apply bg-orange-100 text-orange-800;
   }
 
+  .dark .badge-warning {
+    @apply bg-orange-900/30 text-orange-400;
+  }
+
   .badge-danger {
     @apply bg-red-100 text-red-800;
+  }
+
+  .dark .badge-danger {
+    @apply bg-red-900/30 text-red-400;
   }
 
   /* 漸層背景 */
@@ -227,8 +313,13 @@
   /* 載入動畫 */
   .loading-spinner {
     @apply inline-block w-6 h-6;
-    @apply border-4 border-gray-200 border-t-amber-500;
-    @apply rounded-full animate-spin;
+    @apply border-4 rounded-full animate-spin;
+    @apply border-gray-200;
+    border-top-color: var(--color-primary);
+  }
+
+  .dark .loading-spinner {
+    @apply border-gray-700;
   }
 }
 
@@ -274,12 +365,17 @@
     @apply bg-gray-100 rounded-full;
   }
 
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-800;
+  }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-amber-400 rounded-full;
+    @apply rounded-full;
+    background-color: var(--color-primary);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-amber-500;
+    filter: brightness(1.1);
   }
 
   /* 動畫延遲 */
@@ -408,9 +504,4 @@
   .no-print {
     display: none !important;
   }
-}
-
-/* ==================== 暗色模式支援（可選） ==================== */
-@media (prefers-color-scheme: dark) {
-  /* 如果需要暗色模式，可以在這裡添加 */
 }
