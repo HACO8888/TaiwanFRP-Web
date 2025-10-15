@@ -1,103 +1,163 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useTheme } from '@/contexts/ThemeContext'
+import ThemeSwitcher from '@/components/ThemeSwitcher'
+import { Server, Zap, Shield, Users } from 'lucide-react'
+
+export default function HomePage() {
+  const { themeColors } = useTheme()
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm shadow-md">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
+                }}
+              >
+                <Server className="text-white" size={24} />
+              </div>
+              <div>
+                {/* 修正：使用 backgroundImage 而不是 background */}
+                <h1
+                  className="text-2xl font-bold"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    color: 'transparent',
+                  }}
+                >
+                  TAIWANFRP
+                </h1>
+                <p className="text-xs text-gray-500">內網穿透服務</p>
+              </div>
+            </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <ThemeSwitcher />
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      </header>
+
+      {/* Hero */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+            免費內網穿透服務
+          </h2>
+          <p className="text-xl text-gray-600 mb-8">
+            立即架設 Minecraft 伺服器在自己的電腦上
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              className="px-8 py-4 rounded-xl font-bold text-white shadow-lg hover:shadow-xl transition-all"
+              style={{
+                backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
+              }}
+            >
+              立即開始
+            </button>
+            <button
+              className="px-8 py-4 rounded-xl font-bold border-2 transition-all hover:shadow-lg"
+              style={{
+                borderColor: themeColors.primary,
+                color: themeColors.primary,
+              }}
+            >
+              了解更多
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <FeatureCard
+            icon={<Zap />}
+            title="快速設置"
+            description="只需幾分鐘即可完成設置"
+            color={themeColors.primary}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <FeatureCard
+            icon={<Shield />}
+            title="安全可靠"
+            description="企業級安全保護"
+            color={themeColors.secondary}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+          <FeatureCard
+            icon={<Server />}
+            title="穩定運行"
+            description="99.9% 正常運行時間"
+            color={themeColors.accent}
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <FeatureCard
+            icon={<Users />}
+            title="免費使用"
+            description="永久免費基礎服務"
+            color={themeColors.primary}
+          />
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="container mx-auto px-4 py-16">
+        <div
+          className="rounded-3xl shadow-2xl p-8 text-white max-w-4xl mx-auto"
+          style={{
+            backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
+          }}
+        >
+          <h3 className="text-3xl font-bold mb-8 text-center">即時統計</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <StatCard value="1,234" label="活躍用戶" />
+            <StatCard value="8" label="可用節點" />
+            <StatCard value="99.9%" label="正常運行" />
+            <StatCard value="24/7" label="技術支援" />
+          </div>
+        </div>
+      </section>
     </div>
-  );
+  )
+}
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+  color,
+}: {
+  icon: React.ReactNode
+  title: string
+  description: string
+  color: string
+}) {
+  return (
+    <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
+      <div
+        className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+        style={{ backgroundColor: color }}
+      >
+        <div className="text-white">{icon}</div>
+      </div>
+      <h3 className="font-bold text-lg mb-2">{title}</h3>
+      <p className="text-gray-600 text-sm">{description}</p>
+    </div>
+  )
+}
+
+function StatCard({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-3xl font-bold mb-2">{value}</div>
+      <div className="text-sm opacity-90">{label}</div>
+    </div>
+  )
 }
