@@ -1,31 +1,21 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { useTheme } from '@/contexts/ThemeContext'
-import { Server, Menu, X, LogIn, UserPlus, LogOut, Settings, Sun, Moon, Palette, Check } from 'lucide-react'
+import { Server, Menu, X, LogIn, LogOut, Settings, Sun, Moon, Palette, Check } from 'lucide-react'
 
-interface HeaderProps {
-  isLoggedIn?: boolean
-  username?: string
-  onLogin?: () => void
-  onRegister?: () => void
-  onLogout?: () => void
-  onEditProxy?: () => void
-}
-
-export default function Header({
-  isLoggedIn = false,
-  username = 'User123',
-  onLogin,
-  onRegister,
-  onLogout,
-  onEditProxy
-}: HeaderProps) {
-  // 🚨 關鍵修改：使用真實的 ThemeContext
+export default function Header() {
+  const router = useRouter()
+  const { data: session, status } = useSession()
   const { themeColors, darkMode, toggleDarkMode, currentTheme, setTheme, availableThemes } = useTheme()
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [themeMenuOpen, setThemeMenuOpen] = useState(false)
+
+  const isLoggedIn = status === 'authenticated'
+  const username = session?.user?.name || 'User'
 
   const navItems = [
     { label: '首頁', href: '#home' },
@@ -34,6 +24,18 @@ export default function Header({
     { label: '教學影片', href: '#tutorial' },
     { label: '狀態監控', href: 'https://status.taiwanfrp.me', external: true }
   ]
+
+  const handleLogin = () => {
+    router.push('/login')
+  }
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' })
+  }
+
+  const handleEditProxy = () => {
+    router.push('/dashboard')
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b backdrop-blur-xl transition-colors duration-300
@@ -139,8 +141,8 @@ export default function Header({
                             setThemeMenuOpen(false)
                           }}
                           className={`p-3 rounded-xl border-2 transition-all ${currentTheme === key
-                              ? 'border-gray-900 dark:border-gray-100 shadow-lg'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                            ? 'border-gray-900 dark:border-gray-100 shadow-lg'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                             }`}
                         >
                           <div className="flex gap-1.5 mb-2">
@@ -169,19 +171,27 @@ export default function Header({
               <>
                 <div className="flex items-center gap-2 px-3 py-2 rounded-xl
                   bg-gray-100 dark:bg-gray-800">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm"
-                    style={{ backgroundColor: themeColors.primary }}
-                  >
-                    {username.charAt(0).toUpperCase()}
-                  </div>
+                  {session.user?.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={username}
+                      className="w-8 h-8 rounded-full"
+                    />
+                  ) : (
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                      style={{ backgroundColor: themeColors.primary }}
+                    >
+                      {username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {username}
                   </span>
                 </div>
 
                 <button
-                  onClick={onEditProxy}
+                  onClick={handleEditProxy}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
                   style={{
                     backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
@@ -192,7 +202,7 @@ export default function Header({
                 </button>
 
                 <button
-                  onClick={onLogout}
+                  onClick={handleLogout}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-colors
                     text-gray-700 dark:text-gray-300
                     hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -202,28 +212,16 @@ export default function Header({
                 </button>
               </>
             ) : (
-              <>
-                <button
-                  onClick={onLogin}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-colors
-                    text-gray-700 dark:text-gray-300
-                    hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <LogIn size={18} />
-                  登入
-                </button>
-
-                <button
-                  onClick={onRegister}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
-                  style={{
-                    backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
-                  }}
-                >
-                  <UserPlus size={18} />
-                  註冊
-                </button>
-              </>
+              <button
+                onClick={handleLogin}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
+                }}
+              >
+                <LogIn size={18} />
+                登入
+              </button>
             )}
           </div>
 
@@ -295,8 +293,8 @@ export default function Header({
                       key={key}
                       onClick={() => setTheme(key)}
                       className={`w-7 h-7 rounded-full border-2 transition-all ${currentTheme === key
-                          ? 'border-gray-900 dark:border-white scale-110'
-                          : 'border-transparent'
+                        ? 'border-gray-900 dark:border-white scale-110'
+                        : 'border-transparent'
                         }`}
                       style={{ backgroundColor: theme.primary }}
                     />
@@ -311,12 +309,20 @@ export default function Header({
                 <>
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl
                     bg-gray-100 dark:bg-gray-800">
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
-                      style={{ backgroundColor: themeColors.primary }}
-                    >
-                      {username.charAt(0).toUpperCase()}
-                    </div>
+                    {session?.user?.image ? (
+                      <img
+                        src={session.user.image}
+                        alt={username}
+                        className="w-10 h-10 rounded-full"
+                      />
+                    ) : (
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                        style={{ backgroundColor: themeColors.primary }}
+                      >
+                        {username.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <span className="font-medium text-gray-700 dark:text-gray-300">
                       歡迎，{username}
                     </span>
@@ -324,7 +330,7 @@ export default function Header({
 
                   <button
                     onClick={() => {
-                      onEditProxy?.()
+                      handleEditProxy()
                       setMobileMenuOpen(false)
                     }}
                     className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-white shadow-lg"
@@ -338,7 +344,7 @@ export default function Header({
 
                   <button
                     onClick={() => {
-                      onLogout?.()
+                      handleLogout()
                       setMobileMenuOpen(false)
                     }}
                     className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold transition-colors
@@ -351,35 +357,19 @@ export default function Header({
                   </button>
                 </>
               ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      onLogin?.()
-                      setMobileMenuOpen(false)
-                    }}
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold transition-colors
-                      text-gray-700 dark:text-gray-300
-                      bg-gray-100 dark:bg-gray-800
-                      hover:bg-gray-200 dark:hover:bg-gray-700"
-                  >
-                    <LogIn size={20} />
-                    登入
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      onRegister?.()
-                      setMobileMenuOpen(false)
-                    }}
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-white shadow-lg"
-                    style={{
-                      backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
-                    }}
-                  >
-                    <UserPlus size={20} />
-                    註冊
-                  </button>
-                </>
+                <button
+                  onClick={() => {
+                    handleLogin()
+                    setMobileMenuOpen(false)
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-white shadow-lg"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
+                  }}
+                >
+                  <LogIn size={20} />
+                  登入
+                </button>
               )}
             </div>
           </div>

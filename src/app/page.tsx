@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { useTheme } from '@/contexts/ThemeContext'
-import Header from '@/components/Header'
+
 import {
   Server, Zap, Shield, Users, Download, Globe,
   Activity, TrendingUp, ChevronRight, Info, UserPlus
@@ -62,15 +64,13 @@ interface DownloadCardProps {
   themeColors: ThemeColors
 }
 
-interface FooterLinkProps {
-  children: React.ReactNode
-  themeColors: ThemeColors
-}
-
 export default function TaiwanFRPPage() {
+  const router = useRouter()
+  const { data: session, status } = useSession()
   const { themeColors } = useTheme()
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-  const [username, setUsername] = useState<string>('')
+
+  const isLoggedIn = status === 'authenticated'
+
   const [servers, setServers] = useState<ServerData[]>([])
   const [stats, setStats] = useState<Stats>({
     totalClients: 25,
@@ -95,249 +95,201 @@ export default function TaiwanFRPPage() {
     ])
   }, [])
 
-  const handleLogin = (): void => {
-    console.log('跳轉到登入頁')
-    // 實際應用中：router.push('/login')
-  }
-
   const handleRegister = (): void => {
-    console.log('跳轉到註冊頁')
-    // 實際應用中：router.push('/register')
-  }
-
-  const handleLogout = (): void => {
-    setIsLoggedIn(false)
-    setUsername('')
-    console.log('登出成功')
-  }
-
-  const handleEditProxy = (): void => {
-    console.log('跳轉到編輯代理頁')
-    // 實際應用中：router.push('/edit')
+    router.push('/login')
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-300
-      bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50
-      dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-
-      {/* Header */}
-      <Header
-        isLoggedIn={isLoggedIn}
-        username={username}
-        onLogin={handleLogin}
-        onRegister={handleRegister}
-        onLogout={handleLogout}
-        onEditProxy={handleEditProxy}
-      />
-
-      {/* 主要內容 */}
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Hero Section */}
-        {!isLoggedIn && (
-          <section className="py-16 text-center">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight
+    <main className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Hero Section */}
+      {!isLoggedIn && (
+        <section className="py-16 text-center">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight
                 text-gray-900 dark:text-white">
-                免費內網穿透服務
-              </h2>
-              <p className="text-xl mb-8
+              免費內網穿透服務
+            </h2>
+            <p className="text-xl mb-8
                 text-gray-600 dark:text-gray-300">
-                立即架設 Minecraft 伺服器在自己的電腦上
-                <br />
-                無需設定路由器，支援 TCP/UDP 協定
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="primary" size="lg" icon={<UserPlus size={20} />} themeColors={themeColors} onClick={handleRegister}>
-                  立即註冊
-                </Button>
-                <Button variant="outline" size="lg" icon={<Info size={20} />} themeColors={themeColors}>
-                  了解更多
-                </Button>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* 統計卡片 */}
-        <section className="mb-12">
-          <div
-            className="rounded-3xl shadow-2xl p-8 text-white"
-            style={{
-              backgroundImage: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.secondary} 100%)`,
-            }}
-          >
-            <h3 className="text-2xl font-bold mb-6 text-center">TAIWANFRP 總量統計</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-              <StatCard icon={<Users />} value={stats.totalClients} label="在線客戶端" />
-              <StatCard icon={<Activity />} value={stats.totalConnections} label="建立連接" />
-              <StatCard icon={<TrendingUp />} value={stats.trafficIn} label="入網流量" />
-              <StatCard icon={<TrendingUp />} value={stats.trafficOut} label="出網流量" />
-              <StatCard icon={<Server />} value={stats.tcpProxies} label="TCP 代理" />
-              <StatCard icon={<Server />} value={stats.udpProxies} label="UDP 代理" />
-            </div>
-          </div>
-        </section>
-
-        {/* 伺服器狀態 */}
-        <section className="mb-12">
-          <div className="rounded-3xl shadow-xl p-8
-            bg-white dark:bg-gray-800
-            border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold
-                text-gray-900 dark:text-white">
-                內網穿透伺服器狀態
-              </h3>
-              <a
-                href="#"
-                className="text-sm hover:opacity-80 flex items-center gap-1"
-                style={{ color: themeColors.primary }}
-              >
-                該選哪個？ <ChevronRight size={16} />
-              </a>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {servers.map((server: ServerData, index: number) => (
-                <ServerCard key={index} server={server} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* 功能介紹 */}
-        <section className="mb-12">
-          <div className="rounded-3xl shadow-xl p-8
-            bg-white dark:bg-gray-800
-            border border-gray-100 dark:border-gray-700">
-            <h3 className="text-2xl font-bold mb-2 text-center
-              text-gray-900 dark:text-white">
-              服務特色
-            </h3>
-            <p className="font-bold text-center mb-8
-              text-red-600 dark:text-red-400">
-              注意：所有伺服器都運行在您的電腦上，我們僅提供內網穿透服務
+              立即架設 Minecraft 伺服器在自己的電腦上
+              <br />
+              無需設定路由器,支援 TCP/UDP 協定
             </p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <FeatureCard
-                icon={<Zap />}
-                title="快速設置"
-                description="無需設定路由器，簡化所有操作，幾分鐘即可完成設置"
-                themeColors={themeColors}
-              />
-              <FeatureCard
-                icon={<Shield />}
-                title="安全可靠"
-                description="支援 4G/5G 行動網路及台灣各大寬頻，無需擔心防火牆"
-                themeColors={themeColors}
-              />
-              <FeatureCard
-                icon={<Server />}
-                title="穩定運行"
-                description="同時支援 TCP 與 UDP 流量轉發，確保伺服器穩定運行"
-                themeColors={themeColors}
-              />
-              <FeatureCard
-                icon={<Users />}
-                title="完全免費"
-                description="免費服務，專為沒有公網 IP 的用戶設計"
-                themeColors={themeColors}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* 下載區域 */}
-        <section className="mb-12">
-          <div className="rounded-3xl shadow-xl p-8
-            bg-white dark:bg-gray-800
-            border border-gray-100 dark:border-gray-700">
-            <h3 className="text-2xl font-bold mb-6 text-center
-              text-gray-900 dark:text-white">
-              軟體下載
-            </h3>
-            <p className="text-center mb-8
-              text-gray-600 dark:text-gray-300">
-              選擇您的作業系統下載對應的軟體版本
-            </p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              <DownloadCard platform="Windows" icon="🪟" themeColors={themeColors} />
-              <DownloadCard platform="Linux (ARM)" icon="🐧" themeColors={themeColors} />
-              <DownloadCard platform="Linux (x86_64)" icon="🐧" themeColors={themeColors} />
-              <DownloadCard platform="macOS (M1以上)" icon="🍎" themeColors={themeColors} />
-              <DownloadCard platform="macOS (Intel晶片)" icon="🍎" themeColors={themeColors} />
-            </div>
-            <div className="mt-6 p-4 rounded-xl border
-              bg-orange-50 dark:bg-orange-900/20
-              border-orange-200 dark:border-orange-800">
-              <p className="text-sm mb-2
-                text-gray-700 dark:text-gray-300">
-                <strong>Linux 和 macOS 使用說明：</strong>
-              </p>
-              <p className="text-sm
-                text-gray-600 dark:text-gray-400">
-                下載完畢後，請先 cd 到該目錄下執行{' '}
-                <code className="px-2 py-1 rounded
-                  bg-gray-800 dark:bg-gray-700
-                  text-white dark:text-gray-200">
-                  chmod +x taiwanfrp
-                </code>{' '}
-                再執行{' '}
-                <code className="px-2 py-1 rounded
-                  bg-gray-800 dark:bg-gray-700
-                  text-white dark:text-gray-200">
-                  ./taiwanfrp
-                </code>
-              </p>
-            </div>
-            <p className="text-sm font-bold text-center mt-6
-              text-red-600 dark:text-red-400">
-              * 軟體需搭配帳號使用，請先<a href="#" className="underline">註冊帳號</a> *
-            </p>
-          </div>
-        </section>
-
-        {/* 聯絡方式 */}
-        <section className="mb-12">
-          <div
-            className="rounded-3xl shadow-xl p-8 text-white text-center"
-            style={{
-              backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
-            }}
-          >
-            <h3 className="text-2xl font-bold mb-4">需要協助？</h3>
-            <p className="mb-6">加入我們的 Discord 社群或發送郵件聯絡我們</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="white-outline" icon={<Users size={20} />}>
-                加入 Discord
+              <Button variant="primary" size="lg" icon={<UserPlus size={20} />} themeColors={themeColors} onClick={handleRegister}>
+                立即註冊
               </Button>
-              <Button variant="white-outline" icon={<Globe size={20} />}>
-                發送郵件
+              <Button variant="outline" size="lg" icon={<Info size={20} />} themeColors={themeColors}>
+                了解更多
               </Button>
-            </div>
-            <div className="mt-6 text-sm opacity-90">
-              <p>📧 kiwi071294@gmail.com</p>
-              <p>💬 Discord: discord.gg/83AFn92DbX</p>
             </div>
           </div>
         </section>
-      </main>
+      )}
 
-      {/* Footer */}
-      <footer className="border-t py-8
-        bg-white dark:bg-gray-800
-        border-gray-100 dark:border-gray-700">
-        <div className="container mx-auto px-4 text-center
-          text-gray-600 dark:text-gray-400">
-          <p className="mb-4">powered by kiwi071294</p>
-          <div className="flex justify-center gap-6 text-sm">
-            <FooterLink themeColors={themeColors}>隱私權政策</FooterLink>
-            <FooterLink themeColors={themeColors}>服務條款</FooterLink>
-            <FooterLink themeColors={themeColors}>管理員中心</FooterLink>
+      {/* 統計卡片 */}
+      <section className="mb-12">
+        <div
+          className="rounded-3xl shadow-2xl p-8 text-white"
+          style={{
+            backgroundImage: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.secondary} 100%)`,
+          }}
+        >
+          <h3 className="text-2xl font-bold mb-6 text-center">TAIWANFRP 總量統計</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <StatCard icon={<Users />} value={stats.totalClients} label="在線客戶端" />
+            <StatCard icon={<Activity />} value={stats.totalConnections} label="建立連接" />
+            <StatCard icon={<TrendingUp />} value={stats.trafficIn} label="入網流量" />
+            <StatCard icon={<TrendingUp />} value={stats.trafficOut} label="出網流量" />
+            <StatCard icon={<Server />} value={stats.tcpProxies} label="TCP 代理" />
+            <StatCard icon={<Server />} value={stats.udpProxies} label="UDP 代理" />
           </div>
         </div>
-      </footer>
-    </div>
+      </section>
+
+      {/* 伺服器狀態 */}
+      <section className="mb-12">
+        <div className="rounded-3xl shadow-xl p-8
+            bg-white dark:bg-gray-800
+            border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold
+                text-gray-900 dark:text-white">
+              內網穿透伺服器狀態
+            </h3>
+            <a
+              href="#"
+              className="text-sm hover:opacity-80 flex items-center gap-1"
+              style={{ color: themeColors.primary }}
+            >
+              該選哪個？ <ChevronRight size={16} />
+            </a>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {servers.map((server: ServerData, index: number) => (
+              <ServerCard key={index} server={server} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 功能介紹 */}
+      <section className="mb-12">
+        <div className="rounded-3xl shadow-xl p-8
+            bg-white dark:bg-gray-800
+            border border-gray-100 dark:border-gray-700">
+          <h3 className="text-2xl font-bold mb-2 text-center
+              text-gray-900 dark:text-white">
+            服務特色
+          </h3>
+          <p className="font-bold text-center mb-8
+              text-red-600 dark:text-red-400">
+            注意：所有伺服器都運行在您的電腦上，我們僅提供內網穿透服務
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <FeatureCard
+              icon={<Zap />}
+              title="快速設置"
+              description="無需設定路由器，簡化所有操作，幾分鐘即可完成設置"
+              themeColors={themeColors}
+            />
+            <FeatureCard
+              icon={<Shield />}
+              title="安全可靠"
+              description="支援 4G/5G 行動網路及台灣各大寬頻，無需擔心防火牆"
+              themeColors={themeColors}
+            />
+            <FeatureCard
+              icon={<Server />}
+              title="穩定運行"
+              description="同時支援 TCP 與 UDP 流量轉發，確保伺服器穩定運行"
+              themeColors={themeColors}
+            />
+            <FeatureCard
+              icon={<Users />}
+              title="完全免費"
+              description="免費服務，專為沒有公網 IP 的用戶設計"
+              themeColors={themeColors}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 下載區域 */}
+      <section className="mb-12">
+        <div className="rounded-3xl shadow-xl p-8
+            bg-white dark:bg-gray-800
+            border border-gray-100 dark:border-gray-700">
+          <h3 className="text-2xl font-bold mb-6 text-center
+              text-gray-900 dark:text-white">
+            軟體下載
+          </h3>
+          <p className="text-center mb-8
+              text-gray-600 dark:text-gray-300">
+            選擇您的作業系統下載對應的軟體版本
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            <DownloadCard platform="Windows" icon="🪟" themeColors={themeColors} />
+            <DownloadCard platform="Linux (ARM)" icon="🐧" themeColors={themeColors} />
+            <DownloadCard platform="Linux (x86_64)" icon="🐧" themeColors={themeColors} />
+            <DownloadCard platform="macOS (M1以上)" icon="🍎" themeColors={themeColors} />
+            <DownloadCard platform="macOS (Intel晶片)" icon="🍎" themeColors={themeColors} />
+          </div>
+          <div className="mt-6 p-4 rounded-xl border
+              bg-orange-50 dark:bg-orange-900/20
+              border-orange-200 dark:border-orange-800">
+            <p className="text-sm mb-2
+                text-gray-700 dark:text-gray-300">
+              <strong>Linux 和 macOS 使用說明：</strong>
+            </p>
+            <p className="text-sm
+                text-gray-600 dark:text-gray-400">
+              下載完畢後，請先 cd 到該目錄下執行{' '}
+              <code className="px-2 py-1 rounded
+                  bg-gray-800 dark:bg-gray-700
+                  text-white dark:text-gray-200">
+                chmod +x taiwanfrp
+              </code>{' '}
+              再執行{' '}
+              <code className="px-2 py-1 rounded
+                  bg-gray-800 dark:bg-gray-700
+                  text-white dark:text-gray-200">
+                ./taiwanfrp
+              </code>
+            </p>
+          </div>
+          <p className="text-sm font-bold text-center mt-6
+              text-red-600 dark:text-red-400">
+            * 軟體需搭配帳號使用，請先<a href="/login" className="underline">註冊帳號</a> *
+          </p>
+        </div>
+      </section>
+
+      {/* 聯絡方式 */}
+      <section className="mb-12">
+        <div
+          className="rounded-3xl shadow-xl p-8 text-white text-center"
+          style={{
+            backgroundImage: `linear-gradient(to right, ${themeColors.primary}, ${themeColors.secondary})`,
+          }}
+        >
+          <h3 className="text-2xl font-bold mb-4">需要協助？</h3>
+          <p className="mb-6">加入我們的 Discord 社群或發送郵件聯絡我們</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button variant="white-outline" icon={<Users size={20} />}>
+              加入 Discord
+            </Button>
+            <Button variant="white-outline" icon={<Globe size={20} />}>
+              發送郵件
+            </Button>
+          </div>
+          <div className="mt-6 text-sm opacity-90">
+            <p>📧 kiwi071294@gmail.com</p>
+            <p>💬 Discord: discord.gg/83AFn92DbX</p>
+          </div>
+        </div>
+      </section>
+    </main>
   )
 }
 
@@ -506,19 +458,6 @@ function DownloadCard({ platform, icon, themeColors }: DownloadCardProps) {
           text-gray-400 dark:text-gray-500"
         style={{ opacity: 0.5 }}
       />
-    </a>
-  )
-}
-
-function FooterLink({ children, themeColors }: FooterLinkProps) {
-  return (
-    <a
-      href="#"
-      className="transition-colors hover:underline"
-      onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = themeColors.primary}
-      onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = ''}
-    >
-      {children}
     </a>
   )
 }
